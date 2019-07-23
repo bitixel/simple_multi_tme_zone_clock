@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Simple Multi Time Zone Clock</title>
+    <link rel="stylesheet" href="css/jClocksGMT.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/select2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            background-image: url(./backgroung.png);
+            background-size: cover
+        }
+        
+        .jcgmt-container .jcgmt-lbl {
+            /* country colour */
+            color: #eee;
+            font-size: 1.8vw;
+            padding-top: 4vh;
+        }
+        
+        .jcgmt-digital,
+        .jcgmt-date {
+            /* clock colour */
+            color: #ddd;
+            font-size: 3.5vw;
+        }
+        
+        .jcgmt-container {
+            float: none;
+            height: 24vh;
+        }
+        
+        .container {
+            width: 99%;
+            padding-top: 4vh;
+        }
+        
+        .select2-container {
+            min-width: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="row" id="clocks_container">
+
+        </div>
+    </div>
+
+
+    <div class="modal fade" role="dialog" id="myModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Settings</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="select_container">
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_1"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_2">></select><br>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_3"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_4"></select>
+                        </div>
+
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_5"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_6"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_7"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_8"></select>
+                        </div>
+
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_9"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_10"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_11"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_12"></select>
+                        </div>
+
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_13"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_14"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_15"></select>
+                        </div>
+                        <div class="col-xs-3">
+                            <select class="drop" id="select_16"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" onclick="location.reload();">Reload Page</button>
+                    <button type="button" class="btn btn-danger" onclick="localStorage.clear(); location.reload();">Reset Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="./js/jquery-3.3.1.min.js"></script>
+    <script src="./js/jClocksGMT.js"></script>
+    <script src="./js/jquery.rotate.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/select2.min.js"></script>
+    <script src="./settings.js"></script>
+    <script>
+        var settings = [];
+
+        var arr = [];
+        for (var i = 0; i < 16; i++) {
+            arr.push(all_time_zones[0]);
+        }
+        var default_settings = {
+            country_list: arr
+        };
+
+        function getSettings() {
+            if (localStorage.settings) {
+                return JSON.parse(localStorage.settings);
+            } else {
+                localStorage.settings = JSON.stringify(default_settings);
+                return localStorage.settings;
+            }
+        }
+
+        var settings = getSettings();
+
+        function saveSettings() {
+            localStorage.settings = JSON.stringify(settings);
+        }
+
+        function draw_clocks() {
+            settings.country_list.forEach(function(v, k) {
+
+
+                newNode = document.createElement('div');
+                newNode.className = 'col-xs-3 clock-container';
+                clock = document.createElement('div');
+                clock.className = 'clock';
+                clock.setAttribute('id', 'clock_' + (k + 1));
+                newNode.appendChild(clock);
+                document.getElementById('clocks_container').appendChild(newNode);
+
+
+                $('#clock_' + (k + 1)).jClocksGMT({
+                    title: v.text,
+                    offset: v.offset,
+                    analog: false,
+                    timeformat: 'hh:mm A',
+                    skin: 5
+                });
+            });
+        }
+
+        function draw_dropdowns() {
+            settings.country_list.forEach(function(v, k) {
+                $('#select_' + (k + 1)).select2({
+                        data: all_time_zones.map(function(itm) {
+                            var obj = {
+                                id: itm.id,
+                                text: itm.text,
+                                offset: itm.offset
+                            };
+                            if (itm.offset == settings.country_list[k].offset &&
+                                itm.text == settings.country_list[k].text) {
+                                obj.selected = true;
+                            } else {
+                                obj;
+                            }
+                            return obj;
+                        })
+                    })
+                    .on('select2:selecting', function(e) {
+                        settings.country_list[k] = {
+                            id: e.params.args.data.id,
+                            text: e.params.args.data.text,
+                            offset: e.params.args.data.offset
+                        }
+                        saveSettings();
+                    })
+                $('#myModal').modal('show');
+            });
+        }
+
+        $(document).ready(function() {
+            settings = getSettings();
+            setTimeout(function() {
+                draw_clocks();
+            }, 500);
+            $('.container').on('click', function() {
+                draw_dropdowns();
+                $('#myModal').modal('show');
+            });
+        });
+    </script>
+</body>
+
+</html>
